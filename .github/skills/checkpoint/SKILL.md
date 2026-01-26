@@ -369,6 +369,8 @@ Task [Task ID] checkpoint completed!
    - Step 3.3: User must confirm before git commit
    - **NEVER skip these confirmations!**
 
-5. **Traceability**: Every checkpoint must reference the specific spec section that defined the task.
+5. **Do Not Miss Aggregate Progress**: After marking a task complete, also update the **总体进度** table (stage completed counts + overall totals). Never leave the task table and overall progress out of sync.
+
+6. **Traceability**: Every checkpoint must reference the specific spec section that defined the task.
 
 ---
