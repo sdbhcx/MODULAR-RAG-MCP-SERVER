@@ -1649,7 +1649,7 @@ observability:
 | 任务编号 | 任务名称 | 状态 | 完成日期 | 备注 |
 |---------|---------|------|---------|------|
 | B1 | LLM 抽象接口与工厂 | [x] | 2026-01-27 | BaseLLM + LLMFactory + 16个单元测试 |
-| B2 | Embedding 抽象接口与工厂 | [ ] | - | |
+| B2 | Embedding 抽象接口与工厂 | [x] | 2026-01-27 | BaseEmbedding + EmbeddingFactory + 22个单元测试 |
 | B3 | Splitter 抽象接口与工厂 | [ ] | - | |
 | B4 | VectorStore 抽象接口与工厂 | [ ] | - | |
 | B5 | Reranker 抽象接口与工厂（含 None 回退） | [ ] | - | |
@@ -1814,7 +1814,7 @@ observability:
 - **验收标准**：在测试里用 Fake provider（测试内 stub）验证工厂路由逻辑。
 - **测试方法**：`pytest -q tests/unit/test_llm_factory.py`。
 
-### B2：Embedding 抽象接口与工厂
+### B2：Embedding 抽象接口与工厂 ✅
 - **目标**：定义 `BaseEmbedding` 与 `EmbeddingFactory`，支持批量 embed。
 - **修改文件**：
   - `src/libs/embedding/base_embedding.py`
