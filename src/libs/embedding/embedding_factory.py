@@ -123,6 +123,12 @@ def _register_builtin_providers() -> None:
         EmbeddingFactory.register_provider("azure", AzureEmbedding)
     except ImportError:
         pass  # Azure provider not available
+    
+    try:
+        from src.libs.embedding.ollama_embedding import OllamaEmbedding
+        EmbeddingFactory.register_provider("ollama", OllamaEmbedding)
+    except ImportError:
+        pass  # Ollama provider not available
 
 
 # Register providers when module is imported
