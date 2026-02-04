@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from unittest.mock import MagicMock
 
 # Add the project root to the Python path
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -48,3 +49,15 @@ def config_dir(project_root: Path) -> Path:
         Path to the config directory.
     """
     return project_root / "config"
+
+
+@pytest.fixture
+def test_settings() -> MagicMock:
+    """Provide a lightweight mock Settings object for unit tests."""
+    settings = MagicMock()
+    settings.llm = MagicMock()
+    settings.llm.provider = "openai"
+    settings.rerank = MagicMock()
+    settings.rerank.enabled = True
+    settings.rerank.provider = "llm"
+    return settings

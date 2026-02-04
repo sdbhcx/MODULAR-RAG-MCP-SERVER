@@ -10,6 +10,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from src.libs.reranker.base_reranker import BaseReranker, NoneReranker
+from src.libs.reranker.llm_reranker import LLMReranker
+from src.libs.reranker.cross_encoder_reranker import CrossEncoderReranker
 
 if TYPE_CHECKING:
     from src.core.settings import Settings
@@ -30,6 +32,13 @@ class RerankerFactory:
     """
     
     _PROVIDERS: dict[str, type[BaseReranker]] = {}
+    
+    @classmethod
+    def _initialize_default_providers(cls) -> None:
+        """Register default provider implementations."""
+        if not cls._PROVIDERS:
+            cls.register_provider('llm', LLMReranker)
+            cls.register_provider('cross_encoder', CrossEncoderReranker)
     
     @classmethod
     def register_provider(cls, name: str, provider_class: type[BaseReranker]) -> None:
@@ -63,6 +72,9 @@ class RerankerFactory:
             ValueError: If the configured provider is not supported or missing.
             RuntimeError: If provider initialization fails.
         """
+        # Initialize default providers on first call
+        cls._initialize_default_providers()
+        
         try:
             rerank_settings = settings.rerank
             if rerank_settings is None:

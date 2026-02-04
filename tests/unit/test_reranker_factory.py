@@ -175,7 +175,6 @@ class TestRerankerFactory:
         error_message = str(exc_info.value)
         assert "Unsupported Reranker provider: 'unknown'" in error_message
         assert "Available providers" in error_message
-        assert "B7.7-B7.8" in error_message
     
     def test_create_missing_provider_config(self):
         settings = MagicMock()
