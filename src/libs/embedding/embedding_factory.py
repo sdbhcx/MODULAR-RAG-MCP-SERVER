@@ -90,14 +90,32 @@ class EmbeddingFactory:
                 f"Available providers: {available}"
             )
         
-        # Instantiate the provider
-        # Provider classes should accept settings and optional kwargs
+        # Instantiate the provider.
+        # Different provider implementations may accept different constructor
+        # signatures. Try common patterns in a fail-fast but informative way.
+        instantiation_attempts = []
+
         try:
             return provider_class(settings=settings, **override_kwargs)
-        except Exception as e:
-            raise RuntimeError(
-                f"Failed to instantiate Embedding provider '{provider_name}': {e}"
-            ) from e
+        except Exception as e1:
+            instantiation_attempts.append(repr(e1))
+            try:
+                return provider_class(**override_kwargs)
+            except Exception as e2:
+                instantiation_attempts.append(repr(e2))
+                try:
+                    return provider_class()
+                except Exception as e3:
+                    instantiation_attempts.append(repr(e3))
+                    available = ", ".join(sorted(cls._PROVIDERS.keys())) if cls._PROVIDERS else "none"
+                    raise RuntimeError(
+                        (
+                            f"Failed to instantiate Embedding provider '{provider_name}'. "
+                            f"Attempted constructor patterns: (settings=settings, **kwargs), (**kwargs), () . "
+                            f"Provider registry: {available}. "
+                            f"Encountered errors: {instantiation_attempts}"
+                        )
+                    ) from e3
     
     @classmethod
     def list_providers(cls) -> list[str]:

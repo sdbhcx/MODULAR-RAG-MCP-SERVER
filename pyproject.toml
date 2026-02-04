@@ -38,6 +38,9 @@ dev = [
     "mypy>=1.0",
     "openai>=1.0",
 ]
+chroma = [
+    "chromadb>=0.3.26",
+]
 
 [project.scripts]
 mcp-server = "main:main"

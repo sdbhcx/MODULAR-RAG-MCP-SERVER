@@ -53,7 +53,15 @@ class BaseEmbedding(ABC):
             >>> len(embeddings)  # 2 vectors
             >>> len(embeddings[0])  # dimension (e.g., 1536 for OpenAI)
         """
-        pass
+        # Basic validation that applies to all providers.
+        self.validate_texts(texts)
+
+        # Concrete providers MUST override this method. We provide a clear
+        # fail-fast implementation so that if a subclass forgets to
+        # implement `embed`, it raises an explicit error at runtime.
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement embed(texts, **kwargs)"
+        )
     
     def validate_texts(self, texts: List[str]) -> None:
         """Validate input text list.
