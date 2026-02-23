@@ -28,14 +28,18 @@ class FakeLLM:
         self.call_count = 0
         self.last_prompt = None
     
-    def generate(self, prompt: str, **kwargs: Any) -> str:
+    def chat(self, messages: List[Any], **kwargs: Any) -> Any:
         self.call_count += 1
-        self.last_prompt = prompt
+        # Extract user prompt
+        for msg in reversed(messages):
+            if msg.role == 'user':
+                self.last_prompt = msg.content
+                break
         
         if self.should_fail:
             raise RuntimeError("LLM generation failed")
         
-        return self.response
+        return type('ChatResponse', (), {'content': self.response, 'model': 'test'})
 
 
 class TestLLMRerankerInitialization:

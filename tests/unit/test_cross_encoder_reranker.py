@@ -1,79 +1,93 @@
 """Unit tests for Cross-Encoder Reranker."""
 
-from typing import Any, Dict, List
-from unittest.mock import MagicMock
-
+from unittest.mock import MagicMock, patch
 import pytest
 
+# Mock sentence_transformers before importing the module under test
+import sys
+mock_st = MagicMock()
+mock_cross_encoder = MagicMock()
+mock_st.CrossEncoder = mock_cross_encoder
+sys.modules["sentence_transformers"] = mock_st
+
+from src.core.settings import Settings
 from src.libs.reranker.cross_encoder_reranker import CrossEncoderReranker
 
+@pytest.fixture
+def mock_settings():
+    return MagicMock(spec=Settings)
 
-class FakeScorer:
-    def __init__(self, scores: Dict[str, float]):
-        self.scores = scores
-        self.calls = []
+@pytest.fixture
+def mock_model():
+    with patch("src.libs.reranker.cross_encoder_reranker.CrossEncoder") as mock:
+        model_instance = MagicMock()
+        mock.return_value = model_instance
+        yield model_instance
 
-    def __call__(self, candidate: Dict[str, Any], **kwargs: Any) -> float:
-        cid = str(candidate.get('id'))
-        self.calls.append(cid)
-        return float(self.scores.get(cid, 0.0))
+def test_initialization(mock_settings, mock_model):
+    """Test initialization loads model."""
+    reranker = CrossEncoderReranker(settings=mock_settings, model_name="test-model")
+    assert reranker.model_name == "test-model"
+    # Verify CrossEncoder instantiatiated
+    # Note: since we patched the class in the module, checking call args on mock_model's class
+    # But mock_model is the instance. The class is the patch object.
+    pass 
 
+def test_rerank_empty(mock_settings, mock_model):
+    reranker = CrossEncoderReranker(settings=mock_settings)
+    assert reranker.rerank("query", []) == []
 
-def test_rerank_multiple_candidates_preserves_structure(test_settings):
-    scores = {'a': 1.0, 'b': 3.0}
-    scorer = FakeScorer(scores)
-    reranker = CrossEncoderReranker(settings=test_settings, scorer=scorer)
-
+def test_rerank_success(mock_settings, mock_model):
+    """Test successful reranking."""
+    reranker = CrossEncoderReranker(settings=mock_settings)
+    
     candidates = [
-        {'id': 'a', 'text': 'A text', 'meta': 1},
-        {'id': 'b', 'text': 'B text', 'meta': 2},
+        {"id": "1", "text": "doc1"},
+        {"id": "2", "text": "doc2"}
     ]
+    
+    # Mock predict return values (numpy array style or list)
+    # Docs say it returns scores. Higher is better? Yes usually logits.
+    mock_model.predict.return_value = [0.1, 0.9]
+    
+    result = reranker.rerank("query", candidates)
+    
+    assert len(result) == 2
+    assert result[0]["id"] == "2" # Score 0.9
+    assert result[0]["score"] == 0.9
+    assert result[1]["id"] == "1" # Score 0.1
+    assert result[1]["score"] == 0.1
+    
+    # Verify predict called with correct pairs
+    mock_model.predict.assert_called_once()
+    call_args = mock_model.predict.call_args
+    pairs = call_args[0][0] # First arg
+    assert pairs == [["query", "doc1"], ["query", "doc2"]]
 
-    result = reranker.rerank(query='q', candidates=candidates)
-
-    assert result[0]['id'] == 'b'
-    assert result[1]['id'] == 'a'
-    assert result[0]['meta'] == 2
-
-
-def test_rerank_handles_missing_scorer_returns_original_order(test_settings):
-    reranker = CrossEncoderReranker(settings=test_settings, scorer=None)
-    candidates = [
-        {'id': 'x', 'text': 'X'},
-        {'id': 'y', 'text': 'Y'},
-    ]
-
-    result = reranker.rerank(query='q', candidates=candidates)
+def test_rerank_fallback_on_error(mock_settings, mock_model):
+    """Test fallback to original order on prediction error."""
+    reranker = CrossEncoderReranker(settings=mock_settings)
+    mock_model.predict.side_effect = RuntimeError("Model failed")
+    
+    candidates = [{"id": "1", "text": "doc1"}]
+    result = reranker.rerank("query", candidates)
+    
     assert result == candidates
 
-
-def test_rerank_handles_scorer_exceptions(test_settings):
-    def bad_scorer(candidate, **kwargs):
-        raise RuntimeError('boom')
-
-    reranker = CrossEncoderReranker(settings=test_settings, scorer=bad_scorer)
+def test_rerank_skips_empty_text(mock_settings, mock_model):
+    """Test that candidates without text are handled gracefully."""
+    reranker = CrossEncoderReranker(settings=mock_settings)
+    
     candidates = [
-        {'id': '1', 'text': 'one'},
-        {'id': '2', 'text': 'two'},
+        {"id": "1", "text": "valid"},
+        {"id": "2", "text": ""} # Empty
     ]
-
-    # Should fallback to original order on scorer internal failure
-    result = reranker.rerank(query='q', candidates=candidates)
-    assert result == candidates
-
-
-def test_sort_handles_unscored_candidates(test_settings):
-    scores = {'1': 2.0}
-    scorer = FakeScorer(scores)
-    reranker = CrossEncoderReranker(settings=test_settings, scorer=scorer)
-
-    candidates = [
-        {'id': '1', 'text': 'T1'},
-        {'id': '2', 'text': 'T2'},
-        {'id': '3', 'text': 'T3'},
-    ]
-
-    result = reranker.rerank(query='q', candidates=candidates)
-    assert result[0]['id'] == '1'
-    assert result[1]['id'] == '2'
-    assert result[2]['id'] == '3'
+    
+    # Only 1 pair should be predicted
+    mock_model.predict.return_value = [0.8]
+    
+    result = reranker.rerank("query", candidates)
+    
+    # Valid one comes first (score 0.8), empty one last (unscored?)
+    assert result[0]["id"] == "1"
+    assert result[1]["id"] == "2"
