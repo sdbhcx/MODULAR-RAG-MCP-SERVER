@@ -19,3 +19,10 @@ For each passage, output a JSON object with:
 - passage_id: The identifier of the passage
 - score: The relevance score (0-3)
 - reasoning: Brief explanation of the score
+
+Return ONLY a valid JSON array of these objects:
+[
+  {"passage_id": "...", "score": 3, "reasoning": "..."},
+  ...
+]
+Do not include any other text or markdown formatting.

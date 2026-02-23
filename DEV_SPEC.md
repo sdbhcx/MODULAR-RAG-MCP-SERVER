@@ -1660,9 +1660,9 @@ observability:
 | B7.3 | OpenAI & Azure Embedding 实现 | [x] | 2026-01-28 | OpenAIEmbedding + AzureEmbedding + 27个单元测试 |
 | B7.4 | Ollama Embedding 实现 | [x] | 2026-01-28 | OllamaEmbedding + 20个单元测试 |
 | B7.5 | Recursive Splitter 默认实现 | [x] | 2026-01-28 | RecursiveSplitter + 24个单元测试 + langchain集成 |
-| B7.6 | ChromaStore 默认实现 | [ ] | - | |
-| B7.7 | LLM Reranker 实现 | [ ] | - | |
-| B7.8 | Cross-Encoder Reranker 实现 | [ ] | - | |
+| B7.6 | ChromaStore 默认实现 | [x] | 2026-01-29 | |
+| B7.7 | LLM Reranker 实现 | [x] | - | |
+| B7.8 | Cross-Encoder Reranker 实现 | [x] | - | |
 
 #### 阶段 C：Ingestion Pipeline MVP
 

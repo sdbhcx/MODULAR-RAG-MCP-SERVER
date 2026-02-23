@@ -1,0 +1,7 @@
+openai
+chromadb
+pytest
+pytest-asyncio
+pytest-mock
+pyyaml
+azure-identity

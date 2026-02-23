@@ -249,16 +249,15 @@ Ensure the JSON is parseable and contains exactly {len(candidates)} objects."""
         # Retry loop
         for attempt in range(self.max_retries + 1):
             try:
+                from src.libs.llm.base_llm import Message
                 # Call LLM
-                response = self.llm.generate(
-                    prompt=prompt,
-                    max_tokens=2000,
-                    temperature=0.1,  # Low temperature for consistent scoring
+                chat_response = self.llm.chat(
+                    messages=[Message(role="system", content="You are a helpful assistant."), Message(role="user", content=prompt)],
                     timeout=timeout
                 )
                 
                 # Parse response
-                scores = self._parse_llm_response(response, num_candidates)
+                scores = self._parse_llm_response(chat_response.content, num_candidates)
                 return scores
                 
             except (json.JSONDecodeError, ValueError) as e:
