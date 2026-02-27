@@ -1660,15 +1660,15 @@ observability:
 | B7.3 | OpenAI & Azure Embedding 实现 | [x] | 2026-01-28 | OpenAIEmbedding + AzureEmbedding + 27个单元测试 |
 | B7.4 | Ollama Embedding 实现 | [x] | 2026-01-28 | OllamaEmbedding + 20个单元测试 |
 | B7.5 | Recursive Splitter 默认实现 | [x] | 2026-01-28 | RecursiveSplitter + 24个单元测试 + langchain集成 |
-| B7.6 | ChromaStore 默认实现 | [x] | 2026-01-29 | |
-| B7.7 | LLM Reranker 实现 | [x] | - | |
-| B7.8 | Cross-Encoder Reranker 实现 | [x] | - | |
+| B7.6 | ChromaStore 默认实现 | [x] | 2026-02-24 | |
+| B7.7 | LLM Reranker 实现 | [x] | 2026-02-24 | |
+| B7.8 | Cross-Encoder Reranker 实现 | [x] | 2026-02-24 | |
 
 #### 阶段 C：Ingestion Pipeline MVP
 
 | 任务编号 | 任务名称 | 状态 | 完成日期 | 备注 |
 |---------|---------|------|---------|------|
-| C1 | 定义核心数据模型（Document/Chunk/Record） | [ ] | - | |
+| C1 | 定义核心数据模型（Document/Chunk/Record） | [x] | 2026-02-24 | |
 | C2 | 文件完整性检查（SHA256） | [ ] | - | |
 | C3 | Loader 抽象基类与 PDF Loader | [ ] | - | |
 | C4 | Splitter 集成（调用 Libs） | [ ] | - | |
@@ -1733,13 +1733,13 @@ observability:
 | 阶段 | 总任务数 | 已完成 | 进度 |
 |------|---------|--------|------|
 | 阶段 A | 3 | 3 | 100% |
-| 阶段 B | 14 | 10 | 71% |
-| 阶段 C | 15 | 0 | 0% |
+| 阶段 B | 14 | 14 | 100% |
+| 阶段 C | 15 | 1 | 7% |
 | 阶段 D | 7 | 0 | 0% |
 | 阶段 E | 6 | 0 | 0% |
 | 阶段 F | 5 | 0 | 0% |
 | 阶段 G | 4 | 0 | 0% |
-| **总计** | **54** | **13** | **24%** |
+| **总计** | **54** | **18** | **33%** |
 
 
 ---

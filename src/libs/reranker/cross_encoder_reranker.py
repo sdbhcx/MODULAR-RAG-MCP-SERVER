@@ -29,10 +29,12 @@ class CrossEncoderReranker(BaseReranker):
         self,
         settings: Any = None,
         scorer: Optional[Callable[[Dict[str, Any]], float]] = None,
+        model_name: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         self.settings = settings
         self.scorer = scorer
+        self.model_name = model_name
         self.kwargs = kwargs
 
     def rerank(

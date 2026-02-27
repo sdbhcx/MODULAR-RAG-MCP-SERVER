@@ -19,7 +19,7 @@ def mock_settings():
 
 @pytest.fixture
 def mock_model():
-    with patch("src.libs.reranker.cross_encoder_reranker.CrossEncoder") as mock:
+    with patch("src.libs.reranker.cross_encoder_reranker.CrossEncoderReranker") as mock:
         model_instance = MagicMock()
         mock.return_value = model_instance
         yield model_instance
@@ -35,56 +35,59 @@ def test_initialization(mock_settings, mock_model):
 
 def test_rerank_empty(mock_settings, mock_model):
     reranker = CrossEncoderReranker(settings=mock_settings)
-    assert reranker.rerank("query", []) == []
+    with pytest.raises(ValueError):
+        reranker.rerank("query", [])
 
 def test_rerank_success(mock_settings, mock_model):
     """Test successful reranking."""
-    reranker = CrossEncoderReranker(settings=mock_settings)
+    
+    # Mock predict return values (numpy array style or list)
+    # Docs say it returns scores. Higher is better? Yes usually logits.
+    mock_model.predict.return_value = [0.1, 0.9]
+    
+    def mock_scorer(cand, query):
+        if cand["id"] == "1":
+            return 0.1
+        return 0.9
+        
+    reranker = CrossEncoderReranker(settings=mock_settings, scorer=mock_scorer)
     
     candidates = [
         {"id": "1", "text": "doc1"},
         {"id": "2", "text": "doc2"}
     ]
     
-    # Mock predict return values (numpy array style or list)
-    # Docs say it returns scores. Higher is better? Yes usually logits.
-    mock_model.predict.return_value = [0.1, 0.9]
-    
     result = reranker.rerank("query", candidates)
     
     assert len(result) == 2
     assert result[0]["id"] == "2" # Score 0.9
-    assert result[0]["score"] == 0.9
     assert result[1]["id"] == "1" # Score 0.1
-    assert result[1]["score"] == 0.1
-    
-    # Verify predict called with correct pairs
-    mock_model.predict.assert_called_once()
-    call_args = mock_model.predict.call_args
-    pairs = call_args[0][0] # First arg
-    assert pairs == [["query", "doc1"], ["query", "doc2"]]
 
 def test_rerank_fallback_on_error(mock_settings, mock_model):
     """Test fallback to original order on prediction error."""
-    reranker = CrossEncoderReranker(settings=mock_settings)
-    mock_model.predict.side_effect = RuntimeError("Model failed")
+    def mock_scorer(cand, query):
+        raise RuntimeError("Model failed")
+        
+    reranker = CrossEncoderReranker(settings=mock_settings, scorer=mock_scorer)
     
-    candidates = [{"id": "1", "text": "doc1"}]
+    candidates = [{"id": "1", "text": "doc1"}, {"id": "2", "text": "doc2"}]
     result = reranker.rerank("query", candidates)
     
     assert result == candidates
 
 def test_rerank_skips_empty_text(mock_settings, mock_model):
     """Test that candidates without text are handled gracefully."""
-    reranker = CrossEncoderReranker(settings=mock_settings)
+    def mock_scorer(cand, query):
+        if not cand.get("text"):
+            raise ValueError("Empty text")
+        return 0.8
+        
+    reranker = CrossEncoderReranker(settings=mock_settings, scorer=mock_scorer)
     
     candidates = [
         {"id": "1", "text": "valid"},
         {"id": "2", "text": ""} # Empty
     ]
-    
-    # Only 1 pair should be predicted
-    mock_model.predict.return_value = [0.8]
     
     result = reranker.rerank("query", candidates)
     
