@@ -1671,7 +1671,7 @@ observability:
 | C1 | 定义核心数据模型（Document/Chunk/Record） | [x] | 2026-02-24 | |
 | C2 | 文件完整性检查（SHA256） | [x] | 2026-02-27 | file_integrity + 单元测试 |
 | C3 | Loader 抽象基类与 PDF Loader | [x] | 2026-02-27 | BaseLoader + PdfLoader + 单元测试 |
-| C4 | Splitter 集成（调用 Libs） | [ ] | - | |
+| C4 | Splitter 集成（调用 Libs） | [x] | 2026-02-28 | IngestionPipeline + SplitterFactory 集成 + 单元测试 |
 | C5 | Transform 基类 + ChunkRefiner | [ ] | - | |
 | C6 | MetadataEnricher | [ ] | - | |
 | C7 | ImageCaptioner | [ ] | - | |
@@ -1734,12 +1734,12 @@ observability:
 |------|---------|--------|------|
 | 阶段 A | 3 | 3 | 100% |
 | 阶段 B | 14 | 14 | 100% |
-| 阶段 C | 15 | 3 | 20% |
+| 阶段 C | 15 | 4 | 27% |
 | 阶段 D | 7 | 0 | 0% |
 | 阶段 E | 6 | 0 | 0% |
 | 阶段 F | 5 | 0 | 0% |
 | 阶段 G | 4 | 0 | 0% |
-| **总计** | **54** | **20** | **37%** |
+| **总计** | **54** | **21** | **39%** |
 
 
 ---

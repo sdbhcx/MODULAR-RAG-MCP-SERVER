@@ -1,5 +1,4 @@
-"""
-Ingestion Pipeline - Offline data ingestion.
+"""Ingestion Pipeline - Offline data ingestion.
 
 This package contains the data ingestion pipeline:
 - Document loading
@@ -9,4 +8,7 @@ This package contains the data ingestion pipeline:
 - Storage
 """
 
-__all__ = []
+from src.ingestion.pipeline import IngestionPipeline
+
+__all__ = ["IngestionPipeline"]
+
