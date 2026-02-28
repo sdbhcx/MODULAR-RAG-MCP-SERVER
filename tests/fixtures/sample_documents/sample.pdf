@@ -1,0 +1,4 @@
+This is a sample PDF content for loader tests.
+It is stored as plain text but uses the .pdf extension
+because the current C3 implementation focuses on the
+loader contract rather than real PDF parsing.
